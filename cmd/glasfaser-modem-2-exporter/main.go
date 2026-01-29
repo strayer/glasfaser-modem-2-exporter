@@ -65,7 +65,13 @@ func newMetricsHandlerWithTimeout(ontURL string, timeout time.Duration) http.Han
 
 		// The metrics function that fetches from ONT
 		metricsFunc := func() (metrics.Metrics, error) {
-			resp, err := client.Get(ontURL)
+			req, err := http.NewRequest(http.MethodGet, ontURL, nil)
+			if err != nil {
+				return metrics.Metrics{}, err
+			}
+			req.Header.Set("Accept-Language", "en")
+
+			resp, err := client.Do(req)
 			if err != nil {
 				return metrics.Metrics{}, err
 			}
@@ -89,6 +95,7 @@ func newMetricsHandlerWithTimeout(ontURL string, timeout time.Duration) http.Han
 		// Try to get metrics to check for errors
 		_, err := metricsFunc()
 		if err != nil {
+			log.Printf("ERROR: scrape failed: %v", err)
 			scrapeError.Set(1)
 		} else {
 			scrapeError.Set(0)

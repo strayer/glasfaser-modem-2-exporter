@@ -120,3 +120,24 @@ func TestMetricsHandler_ConnectionRefused(t *testing.T) {
 		t.Errorf("expected ont_scrape_error metric in response")
 	}
 }
+
+func TestMetricsHandler_SendsAcceptLanguageHeader(t *testing.T) {
+	var receivedHeader string
+
+	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		receivedHeader = r.Header.Get("Accept-Language")
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`[]`))
+	}))
+	defer ontServer.Close()
+
+	handler := newMetricsHandler(ontServer.URL)
+
+	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if receivedHeader == "" {
+		t.Error("expected Accept-Language header to be sent, but it was empty")
+	}
+}
