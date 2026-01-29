@@ -17,7 +17,7 @@ func TestMetricsHandler_Success(t *testing.T) {
 
 	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.Write(fixtureData)
+		_, _ = w.Write(fixtureData)
 	}))
 	defer ontServer.Close()
 
@@ -81,7 +81,7 @@ func TestMetricsHandler_InvalidJSON(t *testing.T) {
 	// Create a mock ONT server that returns invalid JSON
 	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte("not valid json"))
+		_, _ = w.Write([]byte("not valid json"))
 	}))
 	defer ontServer.Close()
 
@@ -127,7 +127,7 @@ func TestMetricsHandler_SendsAcceptLanguageHeader(t *testing.T) {
 	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		receivedHeader = r.Header.Get("Accept-Language")
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(`[]`))
+		_, _ = w.Write([]byte(`[]`))
 	}))
 	defer ontServer.Close()
 

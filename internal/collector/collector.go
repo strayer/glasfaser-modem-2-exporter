@@ -37,76 +37,28 @@ type Collector struct {
 	deviceInfo *prometheus.Desc
 }
 
+// newDesc is a helper to create a prometheus.Desc with no labels.
+func newDesc(name, help string) *prometheus.Desc {
+	return prometheus.NewDesc(name, help, nil, nil)
+}
+
 // New creates a new Collector with the given metrics source.
 func New(metricsFunc MetricsFunc) *Collector {
 	return &Collector{
-		metricsFunc: metricsFunc,
-
-		rxPowerDBm: prometheus.NewDesc(
-			"ont_optical_rx_power_dbm",
-			"Receive optical power in dBm",
-			nil, nil,
-		),
-		txPowerDBm: prometheus.NewDesc(
-			"ont_optical_tx_power_dbm",
-			"Transmit optical power in dBm",
-			nil, nil,
-		),
-		bipErrors: prometheus.NewDesc(
-			"ont_optical_bip_errors_total",
-			"BIP/CRC errors",
-			nil, nil,
-		),
-		rxBytes: prometheus.NewDesc(
-			"ont_lan_receive_bytes_total",
-			"Bytes received",
-			nil, nil,
-		),
-		txBytes: prometheus.NewDesc(
-			"ont_lan_transmit_bytes_total",
-			"Bytes transmitted",
-			nil, nil,
-		),
-		rxPackets: prometheus.NewDesc(
-			"ont_lan_receive_packets_total",
-			"Packets received",
-			nil, nil,
-		),
-		txPackets: prometheus.NewDesc(
-			"ont_lan_transmit_packets_total",
-			"Packets transmitted",
-			nil, nil,
-		),
-		rxDropPackets: prometheus.NewDesc(
-			"ont_lan_packets_dropped_total",
-			"Packets dropped",
-			nil, nil,
-		),
-		uptimeSeconds: prometheus.NewDesc(
-			"ont_uptime_seconds",
-			"Device uptime in seconds",
-			nil, nil,
-		),
-		linkSpeedMbps: prometheus.NewDesc(
-			"ont_lan_link_speed_mbps",
-			"LAN link speed in Mbps",
-			nil, nil,
-		),
-		rebootStatus: prometheus.NewDesc(
-			"ont_reboot_status",
-			"Reboot status",
-			nil, nil,
-		),
-		ploamSuccess: prometheus.NewDesc(
-			"ont_ploam_success",
-			"PLOAM registration success",
-			nil, nil,
-		),
-		hardwareState: prometheus.NewDesc(
-			"ont_hardware_state",
-			"Hardware state",
-			nil, nil,
-		),
+		metricsFunc:   metricsFunc,
+		rxPowerDBm:    newDesc("ont_optical_rx_power_dbm", "Receive optical power in dBm"),
+		txPowerDBm:    newDesc("ont_optical_tx_power_dbm", "Transmit optical power in dBm"),
+		bipErrors:     newDesc("ont_optical_bip_errors_total", "BIP/CRC errors"),
+		rxBytes:       newDesc("ont_lan_receive_bytes_total", "Bytes received"),
+		txBytes:       newDesc("ont_lan_transmit_bytes_total", "Bytes transmitted"),
+		rxPackets:     newDesc("ont_lan_receive_packets_total", "Packets received"),
+		txPackets:     newDesc("ont_lan_transmit_packets_total", "Packets transmitted"),
+		rxDropPackets: newDesc("ont_lan_packets_dropped_total", "Packets dropped"),
+		uptimeSeconds: newDesc("ont_uptime_seconds", "Device uptime in seconds"),
+		linkSpeedMbps: newDesc("ont_lan_link_speed_mbps", "LAN link speed in Mbps"),
+		rebootStatus:  newDesc("ont_reboot_status", "Reboot status"),
+		ploamSuccess:  newDesc("ont_ploam_success", "PLOAM registration success"),
+		hardwareState: newDesc("ont_hardware_state", "Hardware state"),
 		deviceInfo: prometheus.NewDesc(
 			"ont_device_info",
 			"Device information",

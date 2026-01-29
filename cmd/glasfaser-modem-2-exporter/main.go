@@ -28,7 +28,7 @@ func main() {
 
 	http.Handle("/metrics", handler)
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`<html>
+		_, _ = w.Write([]byte(`<html>
 <head><title>Glasfaser Modem 2 Exporter</title></head>
 <body>
 <h1>Glasfaser Modem 2 Exporter</h1>
@@ -39,7 +39,12 @@ func main() {
 
 	log.Printf("Listening on %s", *listenAddr)
 
-	if err := http.ListenAndServe(*listenAddr, nil); err != nil {
+	server := &http.Server{
+		Addr:              *listenAddr,
+		ReadHeaderTimeout: 10 * time.Second,
+	}
+
+	if err := server.ListenAndServe(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error starting server: %v\n", err)
 		os.Exit(1)
 	}
@@ -67,7 +72,7 @@ func newMetricsHandlerWithTimeout(ontURL string, timeout time.Duration) http.Han
 
 		// The metrics function that fetches from ONT
 		metricsFunc := func() (metrics.Metrics, error) {
-			req, err := http.NewRequest(http.MethodGet, ontURL, nil)
+			req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, ontURL, nil)
 			if err != nil {
 				return metrics.Metrics{}, err
 			}
