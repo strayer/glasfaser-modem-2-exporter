@@ -1,12 +1,12 @@
 # Tasks
 
 ## Backlog
-- [ ] Implement collector/exporter handler.
 - [ ] Add CI (go test) and linting (golangci-lint).
 
 ## In Progress
 
 ## Done
+- [x] Implement collector/exporter handler.
 - [x] Define Prometheus metrics.
 - [x] Write tests for metric mapping and defaults (TDD).
 - [x] Implement float parsing rule and integer parsing helpers.
@@ -19,6 +19,7 @@
 - [x] Add basic README with usage and example scrape config.
 
 ## Changelog
+- [x] 2026-01-29: Added collector/exporter HTTP handler with TDD tests.
 - [x] 2026-01-29: Added Prometheus collector with TDD tests.
 - [x] 2026-01-29: Added metric extraction with TDD tests.
 - [x] 2026-01-29: Added float/uint parsing helpers with tests.
