@@ -119,18 +119,31 @@ func New(metricsFunc MetricsFunc) *Collector {
 // Describe implements prometheus.Collector.
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- c.rxPowerDBm
+
 	ch <- c.txPowerDBm
+
 	ch <- c.bipErrors
+
 	ch <- c.rxBytes
+
 	ch <- c.txBytes
+
 	ch <- c.rxPackets
+
 	ch <- c.txPackets
+
 	ch <- c.rxDropPackets
+
 	ch <- c.uptimeSeconds
+
 	ch <- c.linkSpeedMbps
+
 	ch <- c.rebootStatus
+
 	ch <- c.ploamSuccess
+
 	ch <- c.hardwareState
+
 	ch <- c.deviceInfo
 }
 
@@ -146,23 +159,33 @@ func (c *Collector) Collect(ch chan<- prometheus.Metric) {
 	if !math.IsNaN(m.RxPowerDBm) {
 		ch <- prometheus.MustNewConstMetric(c.rxPowerDBm, prometheus.GaugeValue, m.RxPowerDBm)
 	}
+
 	if !math.IsNaN(m.TxPowerDBm) {
 		ch <- prometheus.MustNewConstMetric(c.txPowerDBm, prometheus.GaugeValue, m.TxPowerDBm)
 	}
 
 	// Counters
 	ch <- prometheus.MustNewConstMetric(c.bipErrors, prometheus.CounterValue, float64(m.BIPErrors))
+
 	ch <- prometheus.MustNewConstMetric(c.rxBytes, prometheus.CounterValue, float64(m.RxBytes))
+
 	ch <- prometheus.MustNewConstMetric(c.txBytes, prometheus.CounterValue, float64(m.TxBytes))
+
 	ch <- prometheus.MustNewConstMetric(c.rxPackets, prometheus.CounterValue, float64(m.RxPackets))
+
 	ch <- prometheus.MustNewConstMetric(c.txPackets, prometheus.CounterValue, float64(m.TxPackets))
+
 	ch <- prometheus.MustNewConstMetric(c.rxDropPackets, prometheus.CounterValue, float64(m.RxDropPackets))
 
 	// Gauges
 	ch <- prometheus.MustNewConstMetric(c.uptimeSeconds, prometheus.GaugeValue, float64(m.UptimeSeconds))
+
 	ch <- prometheus.MustNewConstMetric(c.linkSpeedMbps, prometheus.GaugeValue, float64(m.LinkSpeedMbps))
+
 	ch <- prometheus.MustNewConstMetric(c.rebootStatus, prometheus.GaugeValue, float64(m.RebootStatus))
+
 	ch <- prometheus.MustNewConstMetric(c.ploamSuccess, prometheus.GaugeValue, float64(m.PloamSuccess))
+
 	ch <- prometheus.MustNewConstMetric(c.hardwareState, prometheus.GaugeValue, float64(m.HardwareState))
 
 	// Info metric with labels

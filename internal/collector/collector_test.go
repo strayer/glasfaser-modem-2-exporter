@@ -55,12 +55,14 @@ func TestDescribe_ReturnsAllMetricDescriptors(t *testing.T) {
 
 	for _, name := range expectedNames {
 		found := false
+
 		for _, s := range descStrings {
 			if strings.Contains(s, "\""+name+"\"") {
 				found = true
 				break
 			}
 		}
+
 		if !found {
 			t.Errorf("expected metric %q not found in descriptors", name)
 		}

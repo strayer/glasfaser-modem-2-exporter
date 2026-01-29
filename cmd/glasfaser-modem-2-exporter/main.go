@@ -21,6 +21,7 @@ func main() {
 	listenAddr := flag.String("listen-address", ":9100", "Address to listen on for web interface and telemetry")
 	ontURL := flag.String("ont-url", defaultONTURL, "URL of the ONT status JSON endpoint")
 	timeout := flag.Duration("timeout", 10*time.Second, "Timeout for ONT HTTP requests")
+
 	flag.Parse()
 
 	handler := newMetricsHandlerWithTimeout(*ontURL, *timeout)
@@ -37,6 +38,7 @@ func main() {
 	})
 
 	log.Printf("Listening on %s", *listenAddr)
+
 	if err := http.ListenAndServe(*listenAddr, nil); err != nil {
 		fmt.Fprintf(os.Stderr, "Error starting server: %v\n", err)
 		os.Exit(1)
@@ -69,6 +71,7 @@ func newMetricsHandlerWithTimeout(ontURL string, timeout time.Duration) http.Han
 			if err != nil {
 				return metrics.Metrics{}, err
 			}
+
 			req.Header.Set("Accept-Language", "en")
 
 			resp, err := client.Do(req)

@@ -2,6 +2,8 @@
 
 This file provides guidance to AI coding assistants when working with code in this repository.
 
+> **Claude Code**: `CLAUDE.md` is a symlink to this file. Always edit `AGENTS.md`, never `CLAUDE.md`.
+
 ## Project Overview
 
 Prometheus exporter for the Telekom Glasfaser-Modem 2 (ONT). Scrapes the modem's status JSON endpoint and exposes metrics for monitoring optical signal levels, network traffic, and device health.
@@ -14,22 +16,34 @@ Prometheus exporter for the Telekom Glasfaser-Modem 2 (ONT). Scrapes the modem's
 
 ## Commands
 
+This project uses [mise](https://mise.jdx.dev/) for tool management and tasks.
+
 ```bash
+# Install dependencies (golangci-lint)
+mise install
+
 # Run all tests
-go test ./...
+mise run test
 
 # Run a single test
 go test ./internal/status -run TestParse_NotProvisionedFixture
 
-# Build the binary (once main.go exists)
-go build -o glasfaser-modem-2-exporter ./cmd/glasfaser-modem-2-exporter
+# Build the binary
+mise run build
+
+# Run linter
+mise run lint
+
+# Format code
+mise run fmt
 ```
 
 ## Architecture
 
 - `cmd/glasfaser-modem-2-exporter/` - Main entrypoint
 - `internal/status/` - JSON parsing for ONT status endpoint (varid → varvalue map)
-- `internal/metrics/` - Prometheus metric definitions (planned)
+- `internal/metrics/` - Metric extraction from status data
+- `internal/collector/` - Prometheus collector implementation
 - `testdata/` - Fixture JSON files for testing
 
 ## Data Source

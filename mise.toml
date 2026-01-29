@@ -1,0 +1,31 @@
+[tools]
+golangci-lint = "2.8"
+
+[tasks.test]
+description = "Run all tests"
+run = "go test ./..."
+
+[tasks.test-verbose]
+description = "Run tests with verbose output"
+run = "go test ./... -v"
+
+[tasks.build]
+description = "Build the binary"
+run = "go build -o glasfaser-modem-2-exporter ./cmd/glasfaser-modem-2-exporter"
+
+[tasks.start]
+description = "Build and run the exporter"
+depends = ["build"]
+run = "./glasfaser-modem-2-exporter"
+
+[tasks.clean]
+description = "Clean build artifacts"
+run = "rm -f glasfaser-modem-2-exporter"
+
+[tasks.lint]
+description = "Run linter"
+run = "golangci-lint run"
+
+[tasks.fmt]
+description = "Format code"
+run = "golangci-lint fmt"

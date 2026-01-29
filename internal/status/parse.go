@@ -14,6 +14,7 @@ type statusVar struct {
 // Parse builds a varid -> varvalue map from the ONT status JSON array.
 func Parse(r io.Reader) (map[string]string, error) {
 	dec := json.NewDecoder(r)
+
 	var vars []statusVar
 	if err := dec.Decode(&vars); err != nil {
 		return nil, err
@@ -24,7 +25,9 @@ func Parse(r io.Reader) (map[string]string, error) {
 		if v.VarID == "" {
 			continue
 		}
+
 		out[v.VarID] = v.VarValue
 	}
+
 	return out, nil
 }

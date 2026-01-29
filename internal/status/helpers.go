@@ -13,10 +13,12 @@ func ParseFloat(s string) float64 {
 	if s == "" || s == "--" || s == "N/A" {
 		return math.NaN()
 	}
+
 	f, err := strconv.ParseFloat(s, 64)
 	if err != nil {
 		return math.NaN()
 	}
+
 	return f
 }
 
@@ -27,9 +29,11 @@ func ParseUint(s string) uint64 {
 	if s == "" {
 		return 0
 	}
+
 	u, err := strconv.ParseUint(s, 10, 64)
 	if err != nil {
 		return 0
 	}
+
 	return u
 }

@@ -1,0 +1,60 @@
+version: "2"
+
+run:
+  timeout: 5m
+
+linters:
+  default: all
+  disable:
+    # Not needed for this project
+    - depguard       # Dependency allowlist (not needed)
+    - err113         # Dynamic errors (overkill for small project)
+    - exhaustruct    # Require all struct fields (too strict)
+    - godox          # TODO/FIXME comments (allow them)
+    - ireturn        # Require concrete returns (too strict)
+    - lll            # Line length (style preference)
+    - mnd            # Magic numbers (overkill)
+    - nlreturn       # Blank line before return (style preference)
+    - noinlineerr    # No inline error handling (style preference)
+    - varnamelen     # Variable name length (too strict)
+    - wrapcheck      # Require error wrapping (overkill for small project)
+    - wsl            # Whitespace linter (deprecated, use wsl_v5)
+  exclusions:
+    presets:
+      - std-error-handling
+      - common-false-positives
+    rules:
+      # Disable noisy linters for test files only
+      - path: _test\.go
+        linters:
+          - cyclop       # Tests naturally have higher complexity
+          - funlen       # Test functions can be long
+          - paralleltest # Not always appropriate
+          - testpackage  # We test internals
+      # Exclude specific gosec rules for test files
+      - path: _test\.go
+        linters:
+          - gosec
+        text: "G304"  # File path from variable (fine in tests)
+  settings:
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+      disabled-checks:
+        - httpNoBody  # nil is fine for empty body
+    revive:
+      rules:
+        - name: package-comments
+          disabled: true
+        - name: unused-parameter
+          disabled: true
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true

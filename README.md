@@ -56,10 +56,28 @@ All metrics are prefixed with `ont_`.
 |--------|------|--------|
 | `ont_device_info` | Gauge (value=1) | `firmware_version`, `hardware_revision`, `serial_number`, `model` |
 
-## Building
+## Development
+
+This project uses [mise](https://mise.jdx.dev/) for tool management and task running.
 
 ```bash
-go build -o glasfaser-modem-2-exporter ./cmd/glasfaser-modem-2-exporter
+# Install dependencies (golangci-lint)
+mise install
+
+# Run tests
+mise run test
+
+# Build the binary
+mise run build
+
+# Run the exporter
+mise run start
+
+# Run linter
+mise run lint
+
+# Format code
+mise run fmt
 ```
 
 ## AI Usage Notice
