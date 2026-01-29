@@ -1,0 +1,122 @@
+[
+  {
+    "vartype": "value",
+    "varid": "device_name",
+    "varvalue": "Glasfaser-Modem 2"
+  },
+  {
+    "vartype": "value",
+    "varid": "rebooting",
+    "varvalue": "0"
+  },
+  {
+    "vartype": "value",
+    "varid": "ploam_state",
+    "varvalue": ""
+  },
+  {
+    "vartype": "value",
+    "varid": "ploam_success",
+    "varvalue": "1"
+  },
+  {
+    "vartype": "value",
+    "varid": "save_fails",
+    "varvalue": "0"
+  },
+  {
+    "vartype": "value",
+    "varid": "service_mode",
+    "varvalue": "0"
+  },
+  {
+    "vartype": "page_title",
+    "varid": "title",
+    "varvalue": "Glasfaser-Modem 2 Konfigurationsprogramm"
+  },
+  {
+    "vartype": "value",
+    "varid": "datetime",
+    "varvalue": "01.01.1970 02:43:02"
+  },
+  {
+    "vartype": "value",
+    "varid": "firmware_version",
+    "varvalue": "090144.1.0.001"
+  },
+  {
+    "vartype": "value",
+    "varid": "hardware_revision",
+    "varvalue": "V1"
+  },
+  {
+    "vartype": "value",
+    "varid": "fw_version_standby",
+    "varvalue": "090144.1.0.001"
+  },
+  {
+    "vartype": "value",
+    "varid": "hardware_state",
+    "varvalue": "1"
+  },
+  {
+    "vartype": "value",
+    "varid": "txpackets",
+    "varvalue": "13816"
+  },
+  {
+    "vartype": "value",
+    "varid": "txbytes",
+    "varvalue": "11681247"
+  },
+  {
+    "vartype": "value",
+    "varid": "rxpackets",
+    "varvalue": "11000"
+  },
+  {
+    "vartype": "value",
+    "varid": "rxbytes",
+    "varvalue": "1421762"
+  },
+  {
+    "vartype": "value",
+    "varid": "rxdrop_packets",
+    "varvalue": "0"
+  },
+  {
+    "vartype": "value",
+    "varid": "link_status",
+    "varvalue": "1000"
+  },
+  {
+    "vartype": "value",
+    "varid": "stability",
+    "varvalue": "6672"
+  },
+  {
+    "vartype": "value",
+    "varid": "rxbip_crc",
+    "varvalue": "0"
+  },
+  {
+    "vartype": "value",
+    "varid": "serial_number",
+    "varvalue": "ONT1234567890AB"
+  },
+  {
+    "vartype": "value",
+    "varid": "txpower",
+    "varvalue": "--"
+  },
+  {
+    "vartype": "value",
+    "varid": "rxpower",
+    "varvalue": "-16.42"
+  },
+  {
+    "vartype": "value",
+    "varid": "ui_version",
+    "varvalue": "2.18.161"
+  }
+]

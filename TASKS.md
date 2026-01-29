@@ -2,8 +2,6 @@
 
 ## Backlog
 - [ ] Add Prometheus client dependency.
-- [ ] Add sample fixture JSON.
-- [ ] Write tests for JSON parse + `varid` map construction (TDD).
 - [ ] Implement JSON fetch + parse (`varid` -> `varvalue` map).
 - [ ] Write tests for float parsing rule and integer parsing helpers (TDD).
 - [ ] Implement float parsing rule and integer parsing helpers.
@@ -18,7 +16,11 @@
 
 ## Done
 - [x] Set up Go module and basic project layout.
+- [x] Add sample fixture JSON.
+- [x] Write tests for JSON parse + `varid` map construction (TDD).
 
 ## Changelog
 - [x] 2026-01-29: Initialized Go module and basic layout.
+- [x] 2026-01-29: Added fixture JSON files (provisioned and not provisioned).
 - [x] 2026-01-29: Initialized task tracker.
+- [x] 2026-01-29: Added TDD tests for parsing status JSON.
