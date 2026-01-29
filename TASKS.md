@@ -1,7 +1,6 @@
 # Tasks
 
 ## Backlog
-- [ ] Add Prometheus client dependency.
 - [ ] Write tests for float parsing rule and integer parsing helpers (TDD).
 - [ ] Implement float parsing rule and integer parsing helpers.
 - [ ] Write tests for metric mapping and defaults (TDD).
@@ -13,6 +12,7 @@
 - [ ]
 
 ## Done
+- [x] Add Prometheus client dependency.
 - [x] Set up Go module and basic project layout.
 - [x] Add sample fixture JSON.
 - [x] Write tests for JSON parse + `varid` map construction (TDD).
@@ -20,6 +20,7 @@
 - [x] Add basic README with usage and example scrape config.
 
 ## Changelog
+- [x] 2026-01-29: Added Prometheus client_golang dependency.
 - [x] 2026-01-29: Initialized Go module and basic layout.
 - [x] 2026-01-29: Added fixture JSON files (provisioned and not provisioned).
 - [x] 2026-01-29: Initialized task tracker.
