@@ -6,6 +6,7 @@
 ## In Progress
 
 ## Done
+- [x] Add human-readable web dashboard with Catppuccin theme, light/dark mode, and auto-refresh.
 - [x] Set up local development tooling (golangci-lint, mise tasks).
 - [x] Implement collector/exporter handler.
 - [x] Define Prometheus metrics.
@@ -20,6 +21,7 @@
 - [x] Add basic README with usage and example scrape config.
 
 ## Changelog
+- [x] 2026-01-29: Added human-readable web dashboard with Catppuccin theme, light/dark mode, auto-refresh, and JSON API.
 - [x] 2026-01-29: Set up golangci-lint v2 config and mise tasks for linting/formatting.
 - [x] 2026-01-29: Added collector/exporter HTTP handler with TDD tests.
 - [x] 2026-01-29: Added Prometheus collector with TDD tests.

@@ -13,6 +13,25 @@ Configuration via flags and environment variables:
 - Listen address
 - Scrape timeout
 
+## Web Interface
+
+The exporter provides a human-readable web dashboard at `/` with:
+
+- Signal quality gauges (RX/TX power with color-coded status)
+- Network traffic statistics
+- Device status and uptime
+- Device information (firmware, model, serial number)
+
+The dashboard uses the Catppuccin color scheme and automatically follows your system's light/dark mode preference. Data refreshes every 5 seconds.
+
+### Endpoints
+
+| Path | Description |
+|------|-------------|
+| `/` | Web dashboard |
+| `/metrics` | Prometheus metrics |
+| `/api/status` | JSON API for current status |
+
 ## Prometheus Scrape Config
 
 ```yaml

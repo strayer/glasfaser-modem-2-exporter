@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glasfaser Modem 2</title>
+    <style>
+        :root {
+            --base: #eff1f5;
+            --surface: #ccd0da;
+            --text: #4c4f69;
+            --subtext: #6c6f85;
+            --green: #40a02b;
+            --yellow: #df8e1d;
+            --red: #d20f39;
+            --mauve: #8839ef;
+            --overlay: #9ca0b0;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --base: #1e1e2e;
+                --surface: #313244;
+                --text: #cdd6f4;
+                --subtext: #a6adc8;
+                --green: #a6e3a1;
+                --yellow: #f9e2af;
+                --red: #f38ba8;
+                --mauve: #cba6f7;
+                --overlay: #6c7086;
+            }
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--base);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        .page-header {
+            display: flex;
+            align-items: baseline;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .page-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--mauve);
+        }
+
+        .metrics-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: var(--subtext);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .metrics-link:hover {
+            color: var(--mauve);
+        }
+
+        .metrics-link svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            transition: background 0.3s;
+        }
+
+        .card-title {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--subtext);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--overlay);
+        }
+
+        .metric:last-child {
+            border-bottom: none;
+        }
+
+        .metric-label {
+            color: var(--subtext);
+            font-size: 0.875rem;
+        }
+
+        .metric-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .metric-value.good {
+            color: var(--green);
+        }
+
+        .metric-value.warning {
+            color: var(--yellow);
+        }
+
+        .metric-value.critical {
+            color: var(--red);
+        }
+
+        .metric-value.na {
+            color: var(--overlay);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge.success {
+            background: var(--green);
+            color: var(--base);
+        }
+
+        .badge.error {
+            background: var(--red);
+            color: var(--base);
+        }
+
+        .signal-gauge {
+            margin-bottom: 1rem;
+        }
+
+        .gauge-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.5rem;
+        }
+
+        .gauge-label {
+            font-size: 0.875rem;
+            color: var(--subtext);
+        }
+
+        .gauge-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .gauge-bar {
+            height: 8px;
+            background: var(--overlay);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .gauge-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s, background 0.3s;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            font-size: 0.875rem;
+        }
+
+        .info-label {
+            color: var(--subtext);
+        }
+
+        .info-value {
+            font-weight: 500;
+            word-break: break-all;
+            text-align: right;
+            max-width: 60%;
+        }
+
+        .error-banner {
+            background: var(--red);
+            color: var(--base);
+            padding: 1rem 2rem;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .page-title {
+                font-size: 1.75rem;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="error-banner" class="error-banner" style="display: none;">
+        Unable to fetch modem status. Retrying...
+    </div>
+
+    <div class="container">
+        <div class="page-header">
+            <h1 class="page-title">Glasfaser Modem 2</h1>
+            <a href="/metrics" class="metrics-link">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M4.25 5.5a.75.75 0 00-.75.75v8.5c0 .414.336.75.75.75h8.5a.75.75 0 00.75-.75v-4a.75.75 0 011.5 0v4A2.25 2.25 0 0112.75 17h-8.5A2.25 2.25 0 012 14.75v-8.5A2.25 2.25 0 014.25 4h5a.75.75 0 010 1.5h-5z" clip-rule="evenodd" />
+                    <path fill-rule="evenodd" d="M6.194 12.753a.75.75 0 001.06.053L16.5 4.44v2.81a.75.75 0 001.5 0v-4.5a.75.75 0 00-.75-.75h-4.5a.75.75 0 000 1.5h2.553l-9.056 8.194a.75.75 0 00-.053 1.06z" clip-rule="evenodd" />
+                </svg>
+                Metrics
+            </a>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">Signal Quality</div>
+
+                <div class="signal-gauge">
+                    <div class="gauge-header">
+                        <span class="gauge-label">RX Power</span>
+                        <span id="rx-power" class="gauge-value">--</span>
+                    </div>
+                    <div class="gauge-bar">
+                        <div id="rx-gauge" class="gauge-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="signal-gauge">
+                    <div class="gauge-header">
+                        <span class="gauge-label">TX Power</span>
+                        <span id="tx-power" class="gauge-value">--</span>
+                    </div>
+                    <div class="gauge-bar">
+                        <div id="tx-gauge" class="gauge-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+
+                <div class="metric">
+                    <span class="metric-label">BIP/CRC Errors</span>
+                    <span id="bip-errors" class="metric-value">--</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Network Traffic</div>
+                <div class="metric">
+                    <span class="metric-label">Bytes Received</span>
+                    <span id="rx-bytes" class="metric-value">--</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Bytes Transmitted</span>
+                    <span id="tx-bytes" class="metric-value">--</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Packets Received</span>
+                    <span id="rx-packets" class="metric-value">--</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Packets Transmitted</span>
+                    <span id="tx-packets" class="metric-value">--</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Dropped Packets</span>
+                    <span id="dropped-packets" class="metric-value">--</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Device Status</div>
+                <div class="metric">
+                    <span class="metric-label">Uptime</span>
+                    <span id="uptime" class="metric-value">--</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Link Speed</span>
+                    <span id="link-speed" class="metric-value">--</span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">PLOAM Status</span>
+                    <span id="ploam-status"></span>
+                </div>
+                <div class="metric">
+                    <span class="metric-label">Hardware State</span>
+                    <span id="hw-state"></span>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Device Info</div>
+                <div class="info-row">
+                    <span class="info-label">Firmware</span>
+                    <span id="firmware" class="info-value">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Hardware Revision</span>
+                    <span id="hw-revision" class="info-value">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Model</span>
+                    <span id="model" class="info-value">--</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Serial Number</span>
+                    <span id="serial" class="info-value">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Formatting helpers
+            function formatBytes(bytes) {
+                if (bytes === 0) return '0 B';
+                const units = ['B', 'KB', 'MB', 'GB', 'TB'];
+                const i = Math.floor(Math.log(bytes) / Math.log(1024));
+                return (bytes / Math.pow(1024, i)).toFixed(2) + ' ' + units[i];
+            }
+
+            function formatNumber(num) {
+                return num.toLocaleString();
+            }
+
+            function formatUptime(seconds) {
+                const days = Math.floor(seconds / 86400);
+                const hours = Math.floor((seconds % 86400) / 3600);
+                const minutes = Math.floor((seconds % 3600) / 60);
+
+                const parts = [];
+                if (days > 0) parts.push(days + ' day' + (days !== 1 ? 's' : ''));
+                if (hours > 0) parts.push(hours + ' hour' + (hours !== 1 ? 's' : ''));
+                if (minutes > 0 || parts.length === 0) parts.push(minutes + ' min');
+
+                return parts.join(', ');
+            }
+
+            function getRxPowerClass(dbm) {
+                if (dbm === null) return 'na';
+                if (dbm >= -18 && dbm <= -8) return 'good';
+                if (dbm >= -23 && dbm < -18) return 'warning';
+                return 'critical';
+            }
+
+            function getRxGaugePercent(dbm) {
+                if (dbm === null) return 0;
+                // Map -30 to -5 dBm range to 0-100%
+                const min = -30, max = -5;
+                return Math.max(0, Math.min(100, ((dbm - min) / (max - min)) * 100));
+            }
+
+            function getRxGaugeColor(dbm) {
+                const cls = getRxPowerClass(dbm);
+                const style = getComputedStyle(document.documentElement);
+                if (cls === 'good') return style.getPropertyValue('--green');
+                if (cls === 'warning') return style.getPropertyValue('--yellow');
+                if (cls === 'critical') return style.getPropertyValue('--red');
+                return style.getPropertyValue('--overlay');
+            }
+
+            function getTxGaugePercent(dbm) {
+                if (dbm === null) return 0;
+                // Map 0 to 5 dBm range to 0-100%
+                const min = 0, max = 5;
+                return Math.max(0, Math.min(100, ((dbm - min) / (max - min)) * 100));
+            }
+
+            // Update UI
+            function updateUI(data) {
+                const errorBanner = document.getElementById('error-banner');
+                errorBanner.style.display = data.scrapeError ? 'block' : 'none';
+
+                // Signal Quality
+                const rxPower = data.optical.rxPower;
+                const txPower = data.optical.txPower;
+
+                const rxPowerEl = document.getElementById('rx-power');
+                rxPowerEl.textContent = rxPower !== null ? rxPower.toFixed(2) + ' dBm' : 'N/A';
+                rxPowerEl.className = 'gauge-value ' + getRxPowerClass(rxPower);
+
+                const rxGauge = document.getElementById('rx-gauge');
+                rxGauge.style.width = getRxGaugePercent(rxPower) + '%';
+                rxGauge.style.background = getRxGaugeColor(rxPower);
+
+                const txPowerEl = document.getElementById('tx-power');
+                txPowerEl.textContent = txPower !== null ? txPower.toFixed(2) + ' dBm' : 'N/A';
+                txPowerEl.className = 'gauge-value';
+
+                const txGauge = document.getElementById('tx-gauge');
+                txGauge.style.width = getTxGaugePercent(txPower) + '%';
+                txGauge.style.background = getComputedStyle(document.documentElement).getPropertyValue('--mauve');
+
+                document.getElementById('bip-errors').textContent = formatNumber(data.optical.bipErrors);
+
+                // Network Traffic
+                document.getElementById('rx-bytes').textContent = formatBytes(data.network.rxBytes);
+                document.getElementById('tx-bytes').textContent = formatBytes(data.network.txBytes);
+                document.getElementById('rx-packets').textContent = formatNumber(data.network.rxPackets);
+                document.getElementById('tx-packets').textContent = formatNumber(data.network.txPackets);
+
+                const droppedEl = document.getElementById('dropped-packets');
+                droppedEl.textContent = formatNumber(data.network.droppedPackets);
+                droppedEl.className = 'metric-value' + (data.network.droppedPackets > 0 ? ' warning' : '');
+
+                // Device Status
+                document.getElementById('uptime').textContent = formatUptime(data.status.uptimeSeconds);
+                document.getElementById('link-speed').textContent = data.status.linkSpeedMbps + ' Mbps';
+
+                const ploamEl = document.getElementById('ploam-status');
+                ploamEl.className = 'badge ' + (data.status.ploamSuccess ? 'success' : 'error');
+                ploamEl.textContent = data.status.ploamSuccess ? 'Success' : 'Failed';
+
+                const hwStateEl = document.getElementById('hw-state');
+                hwStateEl.className = 'badge ' + (data.status.hardwareState === 1 ? 'success' : 'error');
+                hwStateEl.textContent = data.status.hardwareState === 1 ? 'OK' : 'Error';
+
+                // Device Info
+                document.getElementById('firmware').textContent = data.device.firmwareVersion || '--';
+                document.getElementById('hw-revision').textContent = data.device.hardwareRevision || '--';
+                document.getElementById('model').textContent = data.device.model || '--';
+                document.getElementById('serial').textContent = data.device.serialNumber || '--';
+            }
+
+            // Fetch data
+            async function fetchStatus() {
+                try {
+                    const response = await fetch('/api/status');
+                    const data = await response.json();
+                    updateUI(data);
+                } catch (err) {
+                    console.error('Failed to fetch status:', err);
+                    updateUI({ scrapeError: true, optical: {}, network: {}, status: {}, device: {} });
+                }
+            }
+
+            // Initial fetch
+            fetchStatus();
+
+            // Refresh every 5 seconds
+            setInterval(fetchStatus, 5000);
+        })();
+    </script>
+</body>
+</html>

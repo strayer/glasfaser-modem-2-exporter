@@ -6,7 +6,16 @@ import (
 	"os"
 	"strings"
 	"testing"
+	"time"
 )
+
+// testMetricsHandler creates a metrics handler with default timeout for testing.
+func testMetricsHandler(ontURL string) http.Handler {
+	timeout := 10 * time.Second
+	metricsFunc := newMetricsFunc(ontURL, timeout)
+
+	return newMetricsHandler(ontURL, timeout, metricsFunc)
+}
 
 func TestMetricsHandler_Success(t *testing.T) {
 	// Create a mock ONT server that returns fixture data
@@ -22,7 +31,7 @@ func TestMetricsHandler_Success(t *testing.T) {
 	defer ontServer.Close()
 
 	// Create our exporter handler pointed at the mock
-	handler := newMetricsHandler(ontServer.URL)
+	handler := testMetricsHandler(ontServer.URL)
 
 	// Request metrics
 	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
@@ -60,7 +69,7 @@ func TestMetricsHandler_ONTError(t *testing.T) {
 	}))
 	defer ontServer.Close()
 
-	handler := newMetricsHandler(ontServer.URL)
+	handler := testMetricsHandler(ontServer.URL)
 
 	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 	rec := httptest.NewRecorder()
@@ -85,7 +94,7 @@ func TestMetricsHandler_InvalidJSON(t *testing.T) {
 	}))
 	defer ontServer.Close()
 
-	handler := newMetricsHandler(ontServer.URL)
+	handler := testMetricsHandler(ontServer.URL)
 
 	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 	rec := httptest.NewRecorder()
@@ -104,7 +113,7 @@ func TestMetricsHandler_InvalidJSON(t *testing.T) {
 
 func TestMetricsHandler_ConnectionRefused(t *testing.T) {
 	// Use an address that won't respond
-	handler := newMetricsHandler("http://127.0.0.1:1")
+	handler := testMetricsHandler("http://127.0.0.1:1")
 
 	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 	rec := httptest.NewRecorder()
@@ -131,7 +140,7 @@ func TestMetricsHandler_SendsAcceptLanguageHeader(t *testing.T) {
 	}))
 	defer ontServer.Close()
 
-	handler := newMetricsHandler(ontServer.URL)
+	handler := testMetricsHandler(ontServer.URL)
 
 	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
 	rec := httptest.NewRecorder()
