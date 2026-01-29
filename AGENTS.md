@@ -88,10 +88,3 @@ All metrics prefixed `ont_`. See README.md for full metric list.
 ## Development
 
 This project uses TDD. Write tests before implementing functionality.
-
-## Task Tracking
-
-Tasks are tracked in TASKS.md. When working on tasks:
-- Move tasks from Backlog to In Progress when starting
-- Move tasks to Done when completed (remove the task from Backlog/In Progress)
-- Add a changelog entry with the date when completing significant work
