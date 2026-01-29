@@ -8,12 +8,6 @@ import (
 	"testing"
 )
 
-type statusVar struct {
-	VarType  string `json:"vartype"`
-	VarID    string `json:"varid"`
-	VarValue string `json:"varvalue"`
-}
-
 func loadFixture(t *testing.T, path string) *os.File {
 	t.Helper()
 	f, err := os.Open(path)
