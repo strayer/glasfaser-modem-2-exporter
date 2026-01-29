@@ -8,7 +8,6 @@
 - [ ] Write tests for metric mapping and defaults (TDD).
 - [ ] Define Prometheus metrics.
 - [ ] Implement collector/exporter handler.
-- [ ] Add basic README with usage and example scrape config.
 - [ ] Add CI (go test) and linting (golangci-lint).
 
 ## In Progress
@@ -18,6 +17,7 @@
 - [x] Set up Go module and basic project layout.
 - [x] Add sample fixture JSON.
 - [x] Write tests for JSON parse + `varid` map construction (TDD).
+- [x] Add basic README with usage and example scrape config.
 
 ## Changelog
 - [x] 2026-01-29: Initialized Go module and basic layout.
