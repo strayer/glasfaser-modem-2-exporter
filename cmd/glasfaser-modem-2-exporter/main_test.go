@@ -5,6 +5,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 )
@@ -148,5 +149,31 @@ func TestMetricsHandler_SendsAcceptLanguageHeader(t *testing.T) {
 
 	if receivedHeader == "" {
 		t.Error("expected Accept-Language header to be sent, but it was empty")
+	}
+}
+
+func TestMetricsHandler_ScrapesONTOncePerRequest(t *testing.T) {
+	fixtureData, err := os.ReadFile("../../testdata/status_provisioned.json")
+	if err != nil {
+		t.Fatalf("failed to read fixture: %v", err)
+	}
+
+	var requests atomic.Int32
+
+	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		requests.Add(1)
+		w.Header().Set("Content-Type", "application/json")
+		_, _ = w.Write(fixtureData)
+	}))
+	defer ontServer.Close()
+
+	handler := testMetricsHandler(ontServer.URL)
+
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil)
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if got := requests.Load(); got != 1 {
+		t.Errorf("expected exactly 1 ONT request per /metrics request, got %d", got)
 	}
 }
