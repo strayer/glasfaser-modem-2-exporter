@@ -1,3 +1,4 @@
+// Package web serves the HTML dashboard and the JSON status API.
 package web
 
 import (

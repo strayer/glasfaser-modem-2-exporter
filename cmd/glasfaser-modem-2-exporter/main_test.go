@@ -24,7 +24,7 @@ func TestMetricsHandler_Success(t *testing.T) {
 		t.Fatalf("failed to read fixture: %v", err)
 	}
 
-	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write(fixtureData)
 	}))
@@ -34,7 +34,7 @@ func TestMetricsHandler_Success(t *testing.T) {
 	handler := testMetricsHandler(ontServer.URL)
 
 	// Request metrics
-	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil)
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 
@@ -64,14 +64,14 @@ func TestMetricsHandler_Success(t *testing.T) {
 
 func TestMetricsHandler_ONTError(t *testing.T) {
 	// Create a mock ONT server that returns an error
-	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 	}))
 	defer ontServer.Close()
 
 	handler := testMetricsHandler(ontServer.URL)
 
-	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil)
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 
@@ -88,7 +88,7 @@ func TestMetricsHandler_ONTError(t *testing.T) {
 
 func TestMetricsHandler_InvalidJSON(t *testing.T) {
 	// Create a mock ONT server that returns invalid JSON
-	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	ontServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_, _ = w.Write([]byte("not valid json"))
 	}))
@@ -96,7 +96,7 @@ func TestMetricsHandler_InvalidJSON(t *testing.T) {
 
 	handler := testMetricsHandler(ontServer.URL)
 
-	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil)
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 
@@ -115,7 +115,7 @@ func TestMetricsHandler_ConnectionRefused(t *testing.T) {
 	// Use an address that won't respond
 	handler := testMetricsHandler("http://127.0.0.1:1")
 
-	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil)
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 
@@ -142,7 +142,7 @@ func TestMetricsHandler_SendsAcceptLanguageHeader(t *testing.T) {
 
 	handler := testMetricsHandler(ontServer.URL)
 
-	req := httptest.NewRequest(http.MethodGet, "/metrics", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/metrics", nil)
 	rec := httptest.NewRecorder()
 	handler.ServeHTTP(rec, req)
 

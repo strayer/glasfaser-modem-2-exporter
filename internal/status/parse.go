@@ -1,3 +1,4 @@
+// Package status parses the ONT Status.json endpoint into a varid → varvalue map.
 package status
 
 import (

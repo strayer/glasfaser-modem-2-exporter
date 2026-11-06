@@ -1,31 +1,37 @@
 [tools]
-golangci-lint = "2.8"
+go = "1.27.3"
+"go:golang.org/x/tools/cmd/goimports" = "0.52.0"
+"go:golang.org/x/vuln/cmd/govulncheck" = "1.9.0"
+golangci-lint = "2.15.0"
+
+[tasks.format]
+description = "Format Go source"
+run = "goimports -w ."
+
+[tasks.format-check]
+description = "Require goimports-clean source"
+run = "test -z \"$(goimports -l .)\""
 
 [tasks.test]
-description = "Run all tests"
-run = "go test ./..."
+description = "Run unit tests"
+run = "go test -race -cover ./..."
 
-[tasks.test-verbose]
-description = "Run tests with verbose output"
-run = "go test ./... -v"
+[tasks.vet]
+description = "Run go vet"
+run = "go vet ./..."
 
-[tasks.build]
-description = "Build the binary"
-run = "go build -o glasfaser-modem-2-exporter ./cmd/glasfaser-modem-2-exporter"
-
-[tasks.start]
-description = "Build and run the exporter"
-depends = ["build"]
-run = "./glasfaser-modem-2-exporter"
-
-[tasks.clean]
-description = "Clean build artifacts"
-run = "rm -f glasfaser-modem-2-exporter"
-
-[tasks.lint]
-description = "Run linter"
+[tasks.golangci-lint]
+description = "Run golangci-lint"
 run = "golangci-lint run"
 
-[tasks.fmt]
-description = "Format code"
-run = "golangci-lint fmt"
+[tasks.govulncheck]
+description = "Scan dependencies and stdlib for known vulnerabilities"
+run = "govulncheck ./..."
+
+[tasks.lint]
+description = "Run all static checks"
+depends = ["format-check", "vet", "golangci-lint", "govulncheck"]
+
+[tasks.run]
+description = "Run the exporter locally (see README for flags)"
+run = "go run ./cmd/glasfaser-modem-2-exporter"

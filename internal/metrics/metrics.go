@@ -1,3 +1,4 @@
+// Package metrics extracts typed metric values from parsed ONT status data.
 package metrics
 
 import (

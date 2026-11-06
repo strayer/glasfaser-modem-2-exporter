@@ -1,3 +1,4 @@
+// Package collector implements the Prometheus collector for ONT metrics.
 package collector
 
 import (

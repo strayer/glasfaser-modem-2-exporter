@@ -19,13 +19,13 @@ func TestDashboardHandler_ServesHTML(t *testing.T) {
 	}
 
 	handler := web.DashboardHandler(metricsFunc)
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected status 200, got %d", resp.StatusCode)
@@ -43,7 +43,7 @@ func TestDashboardHandler_ContainsTitle(t *testing.T) {
 	}
 
 	handler := web.DashboardHandler(metricsFunc)
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/", nil)
 	w := httptest.NewRecorder()
 
 	handler.ServeHTTP(w, req)
@@ -78,13 +78,13 @@ func TestAPIHandler_ReturnsJSON(t *testing.T) {
 	}
 
 	handler := web.APIHandler(metricsFunc)
-	req := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/status", nil)
 	w := httptest.NewRecorder()
 
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	if resp.StatusCode != http.StatusOK {
 		t.Errorf("expected status 200, got %d", resp.StatusCode)
@@ -156,13 +156,13 @@ func TestAPIHandler_ScrapeError(t *testing.T) {
 	}
 
 	handler := web.APIHandler(metricsFunc)
-	req := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/status", nil)
 	w := httptest.NewRecorder()
 
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	// Should still return 200 with scrapeError flag
 	if resp.StatusCode != http.StatusOK {
@@ -188,13 +188,13 @@ func TestAPIHandler_NaNHandling(t *testing.T) {
 	}
 
 	handler := web.APIHandler(metricsFunc)
-	req := httptest.NewRequest(http.MethodGet, "/api/status", nil)
+	req := httptest.NewRequestWithContext(t.Context(), http.MethodGet, "/api/status", nil)
 	w := httptest.NewRecorder()
 
 	handler.ServeHTTP(w, req)
 
 	resp := w.Result()
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 
 	var status web.StatusResponse
 	if err := json.NewDecoder(resp.Body).Decode(&status); err != nil {

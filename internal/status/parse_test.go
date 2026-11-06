@@ -11,7 +11,7 @@ import (
 func loadFixture(t *testing.T, path string) *os.File {
 	t.Helper()
 
-	f, err := os.Open(path)
+	f, err := os.Open(filepath.Clean(path))
 	if err != nil {
 		t.Fatalf("open fixture: %v", err)
 	}
@@ -24,7 +24,7 @@ func loadFixture(t *testing.T, path string) *os.File {
 func countEntries(t *testing.T, path string) int {
 	t.Helper()
 
-	data, err := os.ReadFile(path)
+	data, err := os.ReadFile(filepath.Clean(path))
 	if err != nil {
 		t.Fatalf("read fixture: %v", err)
 	}

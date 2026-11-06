@@ -1,0 +1,7 @@
+.git
+.github
+*.md
+mise.toml
+.pre-commit-config.yaml
+renovate.json5
+scripts

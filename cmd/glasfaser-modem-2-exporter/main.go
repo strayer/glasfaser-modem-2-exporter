@@ -1,3 +1,4 @@
+// Command glasfaser-modem-2-exporter exposes Prometheus metrics for the Telekom Glasfaser-Modem 2 (ONT).
 package main
 
 import (
@@ -63,7 +64,7 @@ func newMetricsFunc(ontURL string, timeout time.Duration) func() (metrics.Metric
 		if err != nil {
 			return metrics.Metrics{}, err
 		}
-		defer resp.Body.Close()
+		defer func() { _ = resp.Body.Close() }()
 
 		if resp.StatusCode != http.StatusOK {
 			return metrics.Metrics{}, fmt.Errorf("ONT returned status %d", resp.StatusCode)
