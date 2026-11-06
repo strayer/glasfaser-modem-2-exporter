@@ -1,0 +1,101 @@
+name: CI
+
+permissions:
+  contents: read
+
+on:
+  pull_request:
+    branches:
+      - '**'
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - run: go test -race ./... -cover
+
+  vet:
+    name: Vet
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - run: go vet ./...
+
+  goimports:
+    name: goimports
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - name: Check formatting
+        run: |
+          output=$(goimports -l .)
+          if [ -n "$output" ]; then
+            echo "The following files are not formatted:"
+            echo "$output"
+            exit 1
+          fi
+
+  lint:
+    name: golangci-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - run: golangci-lint run
+
+  govulncheck:
+    name: govulncheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - run: govulncheck ./...
+
+  go-version-sync:
+    name: Go version sync
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Check Go versions match
+        run: |
+          dockerfile=$(sed -n 's/^FROM .*golang:\([0-9][0-9.]*\).*/\1/p' Dockerfile)
+          gomod=$(sed -n 's/^go \([0-9][0-9.]*\)$/\1/p' go.mod)
+          mise=$(sed -n 's/^go = "\([0-9][0-9.]*\)"$/\1/p' mise.toml)
+          echo "Dockerfile: ${dockerfile:-<not found>}"
+          echo "go.mod:     ${gomod:-<not found>}"
+          echo "mise.toml:  ${mise:-<not found>}"
+          if [ -z "$dockerfile" ] || [ -z "$gomod" ] || [ -z "$mise" ]; then
+            echo "::error::Failed to extract a Go version from one or more files"
+            exit 1
+          fi
+          if [ "$dockerfile" != "$gomod" ] || [ "$gomod" != "$mise" ]; then
+            echo "::error::Go versions are out of sync"
+            exit 1
+          fi
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: docker/setup-qemu-action@99012661954931238ded8c8b007157a8430204e1 # v4.4.0
+      - uses: docker/setup-buildx-action@f87e5991a6d7451dcb8d9637bfbc97413f497069 # v4.4.1
+      - uses: docker/build-push-action@c3c9e263c25d99ce0380d002d59b67737d91b0dc # v7.4.0
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: false
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

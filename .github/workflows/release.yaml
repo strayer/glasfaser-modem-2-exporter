@@ -1,0 +1,106 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions: {}
+
+jobs:
+  # Only signed annotated tags pointing at the built commit may be released.
+  verify-tag:
+    name: Verify signed tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Verify signed tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ref=$(gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/$GITHUB_REF_NAME")
+          if [ "$(jq -r '.object.type' <<<"$ref")" != "tag" ]; then
+            echo "::error::$GITHUB_REF_NAME is a lightweight tag; only signed annotated tags may be released"
+            exit 1
+          fi
+          tag=$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$(jq -r '.object.sha' <<<"$ref")")
+          if [ "$(jq -r '.verification.verified' <<<"$tag")" != "true" ]; then
+            echo "::error::tag $GITHUB_REF_NAME signature not verified (reason: $(jq -r '.verification.reason' <<<"$tag"))"
+            exit 1
+          fi
+          # Bind the signed tag object to this ref and build: the signed-in name
+          # must match the pushed ref, and the tag must point at the exact commit
+          # being built. Prevents replaying an old signed tag under a new name.
+          if [ "$(jq -r '.tag' <<<"$tag")" != "$GITHUB_REF_NAME" ]; then
+            echo "::error::signed tag name '$(jq -r '.tag' <<<"$tag")' does not match pushed ref $GITHUB_REF_NAME"
+            exit 1
+          fi
+          if [ "$(jq -r '.object.type' <<<"$tag")" != "commit" ] || [ "$(jq -r '.object.sha' <<<"$tag")" != "$GITHUB_SHA" ]; then
+            echo "::error::tag $GITHUB_REF_NAME does not point at the commit being built ($GITHUB_SHA)"
+            exit 1
+          fi
+
+  # The release must pass the unit test suite first.
+  test:
+    name: Test gate
+    needs: verify-tag
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - run: go test -race ./... -cover
+
+  build:
+    name: Build image
+    needs: [verify-tag, test]
+    uses: docker/github-builder/.github/workflows/build.yml@cbc9d42f8c89a55623392aadd03600965b80e963 # v1.18.1
+    permissions:
+      contents: read
+      id-token: write
+      packages: write
+    with:
+      platforms: linux/amd64,linux/arm64
+      cache: true
+      cache-mode: max
+      output: image
+      push: true
+      sbom: true
+      set-meta-annotations: true
+      set-meta-labels: true
+      meta-images: ghcr.io/${{ github.repository }}
+      meta-tags: |
+        type=semver,pattern={{version}}
+        type=semver,pattern={{major}}.{{minor}}
+        type=semver,pattern={{major}}
+    secrets:
+      registry-auths: |
+        - registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+  github-release:
+    name: GitHub release
+    needs: [verify-tag, test, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      IMAGE: ghcr.io/${{ github.repository }}
+      DIGEST: ${{ needs.build.outputs.digest }}
+    steps:
+      - name: Create release
+        run: |
+          version=${GITHUB_REF_NAME#v}
+          flags=()
+          case "$GITHUB_REF_NAME" in
+            *-rc*) flags+=(--prerelease) ;;
+          esac
+          # shellcheck disable=SC2016 # backticks are literal markdown fences
+          notes=$(printf '## Container image\n\n```\n%s:%s\n%s@%s\n```\n' \
+            "$IMAGE" "$version" "$IMAGE" "$DIGEST")
+          gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" \
+            --verify-tag --generate-notes --notes "$notes" "${flags[@]}"

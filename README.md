@@ -4,14 +4,32 @@ Prometheus exporter for the Telekom Glasfaser-Modem 2 (ONT). Scrapes the modem's
 
 ## Usage
 
-```bash
+```sh
 glasfaser-modem-2-exporter [flags]
 ```
 
-Configuration via flags and environment variables:
-- Target URL (default: `http://192.168.100.1/ONT/client/data/Status.json`)
-- Listen address
-- Scrape timeout
+| Flag | Default | Description |
+|---|---|---|
+| `-listen-address` | `:9100` | Address to listen on for the dashboard and metrics |
+| `-ont-url` | `http://192.168.100.1/ONT/client/data/Status.json` | URL of the ONT status JSON endpoint |
+| `-timeout` | `10s` | Timeout for ONT HTTP requests |
+
+The ONT is only reachable from a host with a route to `192.168.100.1`, i.e. one that sits on the LAN side of the modem (on a typical setup the router or a machine directly behind it).
+
+## Running with Docker
+
+```yaml
+# compose.yaml
+services:
+  glasfaser-modem-2-exporter:
+    image: ghcr.io/strayer/glasfaser-modem-2-exporter:latest
+    read_only: true
+    restart: unless-stopped
+    ports:
+      - "9100:9100"
+```
+
+The image contains a single static binary and runs as an unprivileged user (`65534`). Pass flags via `command:` to change the listen address, ONT URL or timeout.
 
 ## Web Interface
 
@@ -77,27 +95,27 @@ All metrics are prefixed with `ont_`.
 
 ## Development
 
-This project uses [mise](https://mise.jdx.dev/) for tool management and task running.
+This project uses [mise](https://mise.jdx.dev) for tool management and [prek](https://github.com/j178/prek) for pre-commit hooks.
 
-```bash
-# Install dependencies (golangci-lint)
-mise install
-
-# Run tests
-mise run test
-
-# Build the binary
-mise run build
-
-# Run the exporter
-mise run start
-
-# Run linter
-mise run lint
-
-# Format code
-mise run fmt
+```sh
+mise install      # installs Go, goimports, golangci-lint, govulncheck
+prek install      # installs pre-commit hooks
 ```
+
+```sh
+mise run test     # go test -race -cover ./...
+mise run lint     # format-check, vet, golangci-lint, govulncheck
+mise run format   # goimports -w .
+mise run run      # run the exporter locally
+```
+
+Pre-commit hooks run automatically on `git commit`:
+- **goimports** — auto-formats Go files
+- **golangci-lint** — lints for errors (no auto-fix)
+
+## Releasing
+
+Every PR carries one of the labels `breaking`, `feature`, `enhancement`, `bug`, `chore` or `dependencies`; the labels drive the semver bump and the generated release notes. `scripts/release.sh` proposes the next version, creates a signed annotated tag and pushes it; the release workflow then builds the multi-arch image and publishes the GitHub Release.
 
 ## AI Usage Notice
 

@@ -1,0 +1,41 @@
+# Scheduled binary-mode govulncheck against the latest published image:
+# catches vulnerabilities disclosed after the last build, when no PR or
+# release would otherwise trigger a scan.
+name: Vulncheck
+
+permissions:
+  contents: read
+  packages: read
+
+on:
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+jobs:
+  scan:
+    name: govulncheck (published image)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: jdx/mise-action@f5be966e4a917d54244728e6a5fdcd1d93a35e6c # v5.2.6
+      - uses: docker/login-action@81c6f93d4bc991e510b342a00b419b3bb4efc5c6 # v4.7.0
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Extract binary from latest published image
+        run: |
+          # :latest only exists once a stable (non-prerelease) tag was released;
+          # until then fall back to :dev, built from main on every push.
+          image=ghcr.io/${{ github.repository }}:latest
+          if ! docker manifest inspect "$image" > /dev/null 2>&1; then
+            echo "::notice::No :latest image published yet, scanning :dev instead"
+            image=ghcr.io/${{ github.repository }}:dev
+          fi
+          docker pull "$image"
+          id=$(docker create "$image")
+          docker cp "$id":/glasfaser-modem-2-exporter ./published-exporter
+          docker rm "$id"
+      - name: Scan published binary
+        run: govulncheck -mode binary ./published-exporter
