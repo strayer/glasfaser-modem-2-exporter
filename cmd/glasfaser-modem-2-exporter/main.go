@@ -91,17 +91,14 @@ func newMetricsHandler(_ string, _ time.Duration, metricsFunc func() (metrics.Me
 		})
 		registry.MustRegister(scrapeError)
 
-		// Create and register collector
-		coll := collector.New(metricsFunc)
-
-		// Try to get metrics to check for errors
-		_, err := metricsFunc()
+		// Scrape the ONT once and serve the collector from that result
+		m, err := metricsFunc()
 		if err != nil {
 			log.Printf("ERROR: scrape failed: %v", err)
 			scrapeError.Set(1)
 		} else {
 			scrapeError.Set(0)
-			registry.MustRegister(coll)
+			registry.MustRegister(collector.New(func() (metrics.Metrics, error) { return m, nil }))
 		}
 
 		// Serve metrics
